@@ -12,6 +12,7 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
+import kafka.message.MessageAndMetadata;
 import kafka.serializer.Decoder;
 import kafka.serializer.StringDecoder;
 import kafka.utils.VerifiableProperties;
@@ -39,13 +40,13 @@ public class KafkaConsumer implements Runnable {
 	@Override
 	public void run() {
 		ConsumerIterator<String, String> iterator = kafkaStream.iterator();
-		String message = null;
+		MessageAndMetadata<String, String> messageAndMetadata = null;
 		while (iterator.hasNext()) {
 			try {
-				message = iterator.next().message();
-				log.info("consumer process message {}", JsonUtils.parse(message, MessageModel.class));
+				messageAndMetadata = iterator.next();
+				log.info("consumer process message {}, partition {}, offset {}", JsonUtils.parse(messageAndMetadata.message(), MessageModel.class), messageAndMetadata.partition(), messageAndMetadata.offset());
 			} catch (Exception e) {
-				log.error("process error : message {}", message);
+				log.error("process error : message {}", JsonUtils.parse(messageAndMetadata.message(), MessageModel.class));
 			}
 			
 		}
