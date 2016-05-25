@@ -19,7 +19,7 @@
 	</bean>
 
 	<bean id="kafkaEnv" class="com.github.shanks.kafka.consumer.KafkaEnv">
-		<property name="topic" value="helloworld" />
+		<property name="topic" value="${topic}" />
 		<property name="properties" ref="kafkaConnection" />
 	</bean>
 
