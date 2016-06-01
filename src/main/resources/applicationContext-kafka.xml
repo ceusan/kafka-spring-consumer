@@ -14,19 +14,34 @@
 	<context:property-placeholder location="classpath:*.properties" />
 	<util:properties id="kafkaConnection" location="classpath:kafka.properties" />
 
-	<bean id="kafkaListener" class="com.github.shanks.kafka.consumer.KafkaListener">
-		<property name="kafkaEnv" ref="kafkaEnv"></property>
+	<bean id="kafkaListenerContainer" class="com.github.shanks.kafka.consumer.listener.KafkaListenerContainer">
+		<property name="kafkaConsumer" ref="kafkaConsumer"></property>
+		<property name="taskExecutor" ref="taskExecutor"></property>
+		<property name="messageConverte" ref="messageConverte"></property>
+		<property name="listeners">
+			<list>
+				<bean class="com.github.shanks.kafka.consumer.ArticleListener"></bean>
+				<bean class="com.github.shanks.kafka.consumer.HelloListener"></bean>
+			</list>
+		</property>
 	</bean>
+	
+	<bean id="messageConverte" class="org.springframework.messaging.converter.MappingJackson2MessageConverter"></bean>
 
-	<bean id="kafkaEnv" class="com.github.shanks.kafka.consumer.KafkaEnv">
-		<property name="topic" value="${topic}" />
-		<property name="properties" ref="kafkaConnection" />
+	<bean id="kafkaConsumer" class="com.github.shanks.kafka.consumer.listener.KafkaConsumer">
+		<constructor-arg name="properties" index="0" ref="kafkaConnection"></constructor-arg>
+		<constructor-arg name="topics" index="1" >
+			<list>
+				<value>${topic.hello}</value>
+				<value>${article.topic}</value>
+			</list>
+		</constructor-arg>
 	</bean>
 
 	<bean id="taskExecutor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="5" />
-		<property name="maxPoolSize" value="10" />
+		<property name="corePoolSize" value="2" />
+		<property name="maxPoolSize" value="5" />
 		<property name="queueCapacity" value="25" />
 	</bean>
 
